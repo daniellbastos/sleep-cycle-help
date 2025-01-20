@@ -5,18 +5,38 @@ import { Clock } from "lucide-react";
 
 const calculateSleepTimes = (sleepTime: string, wakeTime: string): string[] => {
   const [sleepHours, sleepMinutes] = sleepTime.split(":").map(Number);
+  const [wakeHours, wakeMinutes] = wakeTime.split(":").map(Number);
+  
   const sleepDate = new Date();
   sleepDate.setHours(sleepHours, sleepMinutes, 0, 0);
+  
+  const wakeDate = new Date();
+  wakeDate.setHours(wakeHours, wakeMinutes, 0, 0);
+  
+  // If wake time is before sleep time, assume it's for the next day
+  if (wakeDate < sleepDate) {
+    wakeDate.setDate(wakeDate.getDate() + 1);
+  }
 
   const sleepTimes: string[] = [];
   const SLEEP_CYCLE = 90; // 90 minutes per sleep cycle
 
-  for (let i = 1; i <= 6; i++) {
-    const cycleTime = new Date(sleepDate.getTime() + i * SLEEP_CYCLE * 60 * 1000);
+  let currentCycle = 1;
+  let cycleTime = new Date(sleepDate.getTime());
+
+  while (cycleTime <= wakeDate) {
+    cycleTime = new Date(sleepDate.getTime() + currentCycle * SLEEP_CYCLE * 60 * 1000);
     sleepTimes.push(
       cycleTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     );
+    currentCycle++;
   }
+
+  // Add one more cycle after wake time
+  cycleTime = new Date(sleepDate.getTime() + currentCycle * SLEEP_CYCLE * 60 * 1000);
+  sleepTimes.push(
+    cycleTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+  );
 
   return sleepTimes;
 };
