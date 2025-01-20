@@ -24,18 +24,21 @@ const calculateSleepTimes = (sleepTime: string, wakeTime: string): string[] => {
   let currentCycle = 1;
   let cycleTime = new Date(sleepDate.getTime());
 
-  while (cycleTime <= wakeDate) {
+  // Only collect cycles until we reach wake time
+  while (cycleTime < wakeDate) {
     cycleTime = new Date(sleepDate.getTime() + currentCycle * SLEEP_CYCLE * 60 * 1000);
-    sleepTimes.push(
-      cycleTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-    );
+    if (cycleTime <= wakeDate) {
+      sleepTimes.push(
+        cycleTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      );
+    }
     currentCycle++;
   }
 
-  // Add one more cycle after wake time
-  cycleTime = new Date(sleepDate.getTime() + currentCycle * SLEEP_CYCLE * 60 * 1000);
+  // Add exactly one more cycle after wake time
+  const finalCycleTime = new Date(sleepDate.getTime() + currentCycle * SLEEP_CYCLE * 60 * 1000);
   sleepTimes.push(
-    cycleTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    finalCycleTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
   );
 
   return sleepTimes;
