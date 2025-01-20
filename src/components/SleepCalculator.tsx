@@ -1,48 +1,65 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TimeInput } from "./TimeInput";
 import { Card } from "@/components/ui/card";
 import { Clock } from "lucide-react";
 
-const calculateSleepTimes = (wakeTime: string): string[] => {
-  const [hours, minutes] = wakeTime.split(":").map(Number);
-  const wakeDate = new Date();
-  wakeDate.setHours(hours, minutes, 0, 0);
+const calculateSleepTimes = (sleepTime: string, wakeTime: string): string[] => {
+  const [sleepHours, sleepMinutes] = sleepTime.split(":").map(Number);
+  const sleepDate = new Date();
+  sleepDate.setHours(sleepHours, sleepMinutes, 0, 0);
 
   const sleepTimes: string[] = [];
   const SLEEP_CYCLE = 90; // 90 minutes per sleep cycle
 
-  for (let i = 4; i <= 6; i++) {
-    const sleepDate = new Date(wakeDate.getTime() - i * SLEEP_CYCLE * 60 * 1000);
+  for (let i = 1; i <= 6; i++) {
+    const cycleTime = new Date(sleepDate.getTime() + i * SLEEP_CYCLE * 60 * 1000);
     sleepTimes.push(
-      sleepDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      cycleTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     );
   }
 
-  return sleepTimes.reverse();
+  return sleepTimes;
+};
+
+const getCurrentTime = () => {
+  const now = new Date();
+  return now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
 
 export const SleepCalculator = () => {
-  const [sleepTimes, setSleepTimes] = useState<string[]>([]);
+  const [sleepTime, setSleepTime] = useState<string>(getCurrentTime());
+  const [wakeTime, setWakeTime] = useState<string>("");
+  const [cycleTimes, setCycleTimes] = useState<string[]>([]);
 
-  const handleTimeChange = (time: string) => {
-    if (time) {
-      setSleepTimes(calculateSleepTimes(time));
+  useEffect(() => {
+    if (sleepTime && wakeTime) {
+      setCycleTimes(calculateSleepTimes(sleepTime, wakeTime));
     } else {
-      setSleepTimes([]);
+      setCycleTimes([]);
     }
-  };
+  }, [sleepTime, wakeTime]);
 
   return (
     <div className="space-y-8">
-      <TimeInput onChange={handleTimeChange} />
+      <div className="space-y-4">
+        <TimeInput
+          label="When will you sleep?"
+          onChange={setSleepTime}
+          defaultValue={getCurrentTime()}
+        />
+        <TimeInput
+          label="When do you want to wake up?"
+          onChange={setWakeTime}
+        />
+      </div>
       
-      {sleepTimes.length > 0 && (
+      {cycleTimes.length > 0 && (
         <div className="space-y-4 animate-fadeIn">
           <h2 className="text-sleep-primary text-lg font-semibold">
-            Recommended bedtimes for optimal sleep:
+            Your sleep cycles:
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {sleepTimes.map((time, index) => (
+            {cycleTimes.map((time, index) => (
               <Card
                 key={time}
                 className="p-4 border-sleep-accent hover:border-sleep-primary transition-colors"
@@ -51,10 +68,13 @@ export const SleepCalculator = () => {
                   <Clock className="text-sleep-secondary" />
                   <div>
                     <p className="text-sm text-sleep-primary">
-                      {6 - index} sleep cycles
+                      Cycle {index + 1}
                     </p>
                     <p className="text-xl font-bold text-sleep-secondary">
                       {time}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {(index + 1) * 90} minutes of sleep
                     </p>
                   </div>
                 </div>

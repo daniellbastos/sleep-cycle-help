@@ -1,13 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 interface TimeInputProps {
   onChange: (time: string) => void;
+  label: string;
+  defaultValue?: string;
 }
 
-export const TimeInput = ({ onChange }: TimeInputProps) => {
-  const [time, setTime] = useState("");
+export const TimeInput = ({ onChange, label, defaultValue }: TimeInputProps) => {
+  const [time, setTime] = useState(defaultValue || "");
+
+  useEffect(() => {
+    if (defaultValue) {
+      setTime(defaultValue);
+      onChange(defaultValue);
+    }
+  }, [defaultValue, onChange]);
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -21,7 +30,7 @@ export const TimeInput = ({ onChange }: TimeInputProps) => {
   return (
     <div className="w-full max-w-xs">
       <Label htmlFor="time-input" className="text-sleep-primary mb-2 block">
-        When do you want to wake up?
+        {label}
       </Label>
       <Input
         id="time-input"
@@ -29,7 +38,7 @@ export const TimeInput = ({ onChange }: TimeInputProps) => {
         value={time}
         onChange={handleTimeChange}
         className="border-sleep-accent focus:border-sleep-primary focus:ring-sleep-primary"
-        placeholder="Enter wake-up time"
+        placeholder="Enter time"
       />
     </div>
   );
