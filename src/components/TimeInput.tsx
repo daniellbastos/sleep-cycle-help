@@ -28,7 +28,7 @@ export const TimeInput = ({ onChange, label, defaultValue }: TimeInputProps) => 
   };
 
   return (
-    <div className="w-full max-w-xs">
+    <div className="w-full">
       <Label htmlFor="time-input" className="text-sleep-primary mb-2 block">
         {label}
       </Label>
@@ -37,7 +37,7 @@ export const TimeInput = ({ onChange, label, defaultValue }: TimeInputProps) => 
         type="time"
         value={time}
         onChange={handleTimeChange}
-        className="border-sleep-accent focus:border-sleep-primary focus:ring-sleep-primary"
+        className="border-sleep-accent focus:border-sleep-primary focus:ring-sleep-primary w-full"
         placeholder="Enter time"
       />
     </div>
